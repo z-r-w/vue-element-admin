@@ -85,3 +85,8 @@ export function isArray(arg) {
   }
   return Array.isArray(arg)
 }
+
+// 校验手机号
+export function validateMobile(str) {
+  return /^1[3~9]\d{9}$/.test(str)
+}
