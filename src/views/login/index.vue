@@ -78,6 +78,7 @@
 <script>
 import { validateMobile } from '@/utils/validate'
 import SocialSign from './components/SocialSignin'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'Login',
@@ -99,8 +100,8 @@ export default {
     // }
     return {
       loginForm: {
-        mobile: 'admin',
-        password: '111111'
+        mobile: '13800000002',
+        password: '123456'
       },
       loginRules: {
         mobile: [{ required: true, trigger: 'blur', message: '手机号不能为空' }, { trigger: 'blur', validator: validateMobiles }],
@@ -140,6 +141,7 @@ export default {
     // window.removeEventListener('storage', this.afterQRScan)
   },
   methods: {
+    ...mapActions(['user/login']),
     checkCapslock(e) {
       const { key } = e
       this.capsTooltip = key && key.length === 1 && (key >= 'A' && key <= 'Z')
@@ -155,31 +157,50 @@ export default {
       })
     },
     handleLogin() {
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('user/login', this.loginForm)
-            .then(() => {
-              this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
-              this.loading = false
-            })
-            .catch(() => {
-              this.loading = false
-            })
-        } else {
-          console.log('error submit!!')
-          return false
+      // this.$refs.loginForm.validate(valid => {
+      //   if (valid) {
+      //     this.loading = true
+      //     this.$store.dispatch('user/login', this.loginForm)
+      //       .then(() => {
+      //         this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
+      //         this.loading = false
+      //       })
+      //       .catch(() => {
+      //         this.loading = false
+      //       })
+      //   } else {
+      //     console.log('error submit!!')
+      //     return false
+      //   }
+      // })
+      this.$refs.loginForm.validate(async isOK => {
+        if (isOK) {
+          try {
+            this.loading = true
+            // 只有校验通过了 我们才去调用action
+            await this['user/login'](this.loginForm)
+            console.log('陈宫')
+            // 应该登录成功之后
+            // async标记的函数实际上一个promise对象
+            // await下面的代码 都是成功执行的代码
+            this.$router.push('/')
+          } catch (error) {
+            console.log(error, 'error')
+          } finally {
+            //  不论执行try 还是catch  都去关闭转圈
+            this.loading = false
+          }
         }
       })
-    },
-    getOtherQuery(query) {
-      return Object.keys(query).reduce((acc, cur) => {
-        if (cur !== 'redirect') {
-          acc[cur] = query[cur]
-        }
-        return acc
-      }, {})
     }
+    // getOtherQuery(query) {
+    //   return Object.keys(query).reduce((acc, cur) => {
+    //     if (cur !== 'redirect') {
+    //       acc[cur] = query[cur]
+    //     }
+    //     return acc
+    //   }, {})
+    // }
     // afterQRScan() {
     //   if (e.key === 'x-admin-oauth-code') {
     //     const code = getQueryObject(e.newValue)

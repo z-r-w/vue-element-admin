@@ -3,7 +3,9 @@
     "baseUrl": "./",
     "paths": {
         "@/*": ["src/*"]
-    }
+    },
+    "jsx": "preserve" //添加配置
   },
+ 
   "exclude": ["node_modules", "dist"]
 }
